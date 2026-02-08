@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "ShopJ",
+    "slug": "ecommerce",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/ecommerce.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/ecommerce.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/ecommerce.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/ecommerce.png"
+    }
+  }
+}
