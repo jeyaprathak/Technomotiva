@@ -39,6 +39,7 @@ export default function OrderScreen() {
         style={[
           styles.status,
           item.status === "Delivered" && styles.delivered,
+          item.status === "Shipped" && styles.shipped,
           item.status === "Pending" && styles.pending,
         ]}
       >
@@ -110,6 +111,9 @@ const styles = StyleSheet.create({
   },
   pending: {
     color: "#ff9800",
+  },
+  shipped: {
+   color: "#2196f3",
   },
   delivered: {
     color: "#4caf50",
