@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "475916971742",
+    "project_id": "technomotiva-1dcf1",
+    "storage_bucket": "technomotiva-1dcf1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:475916971742:android:31363adc8edc968f449c4f",
+        "android_client_info": {
+          "package_name": "com.jeyapratha_k.ecommerce"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFpFko7mysfajkHAIwiReOf-_Bcn10MuA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
