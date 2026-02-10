@@ -5,28 +5,32 @@ const API = axios.create({
 });
 
 API.interceptors.request.use((req) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
+  if (!req.url.includes("/auth/login")) {
+    const token = localStorage.getItem("token");
+    if (token) {
+      req.headers.Authorization = `Bearer ${token}`;
+    }
   }
   return req;
 });
 
-// AUTH
-export const loginAdmin = (data) => API.post("/auth/login", data);
+
+export const loginAdmin = (data) =>
+  API.post("/auth/login", data);
 
 // PRODUCTS
 export const getProducts = () => API.get("/products");
+export const getProductById = (id) => API.get(`/products/${id}`);
 export const createProduct = (data) => API.post("/products", data);
-export const deleteProduct = (id) => API.delete(`/products/${id}`);
-export const getProductById = (id) =>API.get(`/products/${id}`);
-export const updateProduct = (id, data) =>API.put(`/products/${id}`, data);
+export const updateProduct = (id, data) =>
+  API.put(`/products/${id}`, data);
+export const deleteProduct = (id) =>
+  API.delete(`/products/${id}`);
 
 
-// ORDERS
-export const getOrders = () => API.get("/orders");
+// ORDERS (FIXED)
+export const getOrders = () => API.get("/orders"); // admin
 export const updateOrderStatus = (id, status) =>
-  API.put(`/orders/${id}`, { status });
-
+  API.put(`/orders/${id}/status`, { status });
 
 export default API;

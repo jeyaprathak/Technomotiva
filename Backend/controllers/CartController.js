@@ -1,47 +1,64 @@
 const Cart = require("../models/Cart");
 
-// ADD TO CART
-exports.addToCart = async (req, res) => {
-  const { product, quantity } = req.body;
-
-  const item = await Cart.findOne({
-    user: req.user.id,
-    product,
-  });
-
-  if (item) {
-    item.quantity += quantity || 1;
-    await item.save();
-    return res.json(item);
-  }
-
-  const cartItem = await Cart.create({
-    user: req.user.id,
-    product,
-    quantity: quantity || 1,
-  });
-
-  res.status(201).json(cartItem);
+// GET CART
+exports.getCart = async (req, res) => {
+  const cart = await Cart.findOne({ user: req.user.id }).populate(
+    "items.product"
+  );
+  res.json(cart || { items: [] });
 };
 
-// GET CART
-exports.getCartItems = async (req, res) => {
-  const items = await Cart.find({ user: req.user.id }).populate("product");
-  res.json(items);
+// ADD TO CART
+exports.addToCart = async (req, res) => {
+  const { productId, quantity } = req.body;
+
+  let cart = await Cart.findOne({ user: req.user.id });
+
+  if (!cart) {
+    cart = await Cart.create({
+      user: req.user.id,
+      items: [{ product: productId, quantity }],
+    });
+  } else {
+    const item = cart.items.find(
+      (i) => i.product.toString() === productId
+    );
+
+    if (item) item.quantity += quantity;
+    else cart.items.push({ product: productId, quantity });
+
+    await cart.save();
+  }
+
+  res.json(cart);
 };
 
 // UPDATE QUANTITY
-exports.updateCartItem = async (req, res) => {
-  const item = await Cart.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    { new: true }
+exports.updateCart = async (req, res) => {
+  const { productId, quantity } = req.body;
+
+  const cart = await Cart.findOne({ user: req.user.id });
+  const item = cart.items.find(
+    (i) => i.product.toString() === productId
   );
-  res.json(item);
+
+  if (!item) return res.status(404).json({ message: "Item not found" });
+
+  item.quantity = quantity;
+  await cart.save();
+
+  res.json(cart);
 };
 
 // REMOVE ITEM
-exports.removeCartItem = async (req, res) => {
-  await Cart.findByIdAndDelete(req.params.id);
-  res.json({ message: "Item removed from cart" });
+exports.removeItem = async (req, res) => {
+  const { id } = req.params;
+
+  const cart = await Cart.findOne({ user: req.user.id });
+  cart.items = cart.items.filter(
+    (i) => i.product.toString() !== id
+  );
+
+  await cart.save();
+  res.json(cart);
 };

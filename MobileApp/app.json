@@ -4,26 +4,27 @@
     "slug": "ecommerce",
     "version": "1.0.0",
     "orientation": "portrait",
+
     "icon": "./assets/ecommerce.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/ecommerce.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+
+    "updates": {
+      "enabled": false
     },
-    "ios": {
-      "supportsTablet": true
-    },
+
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/ecommerce.png",
-        "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true
+      "package": "com.jeyapratha_k.ecommerce",
+      "googleServicesFile": "./google-services.json"
     },
-    "web": {
-      "favicon": "./assets/ecommerce.png"
-    }
+
+    "extra": {
+      "eas": {
+        "projectId": "7ee1d949-f35e-44ce-93d2-86a42daf28c1"
+      }
+    },
+
+    "plugins": [
+      "expo-font",
+      "expo-notifications"
+    ]
   }
 }

@@ -7,15 +7,21 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const login = async () => {
-    try {
-      const res = await loginAdmin({ email, password });
-      localStorage.setItem("token", res.data.token);
-      navigate("/products");
-    } catch {
-      alert("Invalid admin credentials");
-    }
-  };
+ const login = async () => {
+  try {
+    //  IMPORTANT
+    localStorage.removeItem("token");
+
+    const res = await loginAdmin({ email, password });
+
+    localStorage.setItem("token", res.data.token);
+    navigate("/products");
+  } catch {
+    alert("Invalid admin credentials");
+  }
+};
+
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-600 px-4">

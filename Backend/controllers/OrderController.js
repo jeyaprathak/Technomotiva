@@ -1,73 +1,115 @@
 const Order = require("../models/Order");
 const Cart = require("../models/Cart");
+const User = require("../models/User");
+const { sendPushNotification } = require("../services/push.service");
 
-// CREATE ORDER (USER)
-exports.createOrder = async (req, res) => {
+/**
+ * CREATE ORDER
+ */
+const createOrder = async (req, res) => {
   try {
-    const cartItems = await Cart.find({ user: req.user.id }).populate("product");
+    const cart = await Cart.findOne({ user: req.user.id }).populate(
+      "items.product"
+    );
 
-    if (cartItems.length === 0) {
-      return res.status(400).json({ message: "Cart is empty" });
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({ message: "Cart empty" });
     }
 
-    let total = 0;
-    const items = cartItems.map((item) => {
-      total += item.product.price * item.quantity;
-      return {
-        product: item.product._id,
-        quantity: item.quantity,
-      };
-    });
+    const items = cart.items.map((i) => ({
+      product: i.product._id,
+      quantity: i.quantity,
+      price: i.product.price,
+    }));
+
+    const totalAmount = items.reduce(
+      (sum, i) => sum + i.quantity * i.price,
+      0
+    );
 
     const order = await Order.create({
       user: req.user.id,
       items,
-      totalAmount: total,
+      totalAmount,
+      status: "Placed",
     });
 
-    await Cart.deleteMany({ user: req.user.id });
+    // CLEAR CART
+    cart.items = [];
+    await cart.save();
 
     res.status(201).json(order);
-  } catch (error) {
+  } catch (err) {
+    console.error("CREATE ORDER ERROR:", err);
     res.status(500).json({ message: "Order creation failed" });
   }
 };
-
-// GET USER ORDERS
-exports.getUserOrders = async (req, res) => {
+ 
+// All Orders
+const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user.id }).populate("items.product");
+    const orders = await Order.find()
+      .populate("user")
+      .populate("items.product")
+      .sort({ createdAt: -1 });
+
     res.json(orders);
-  } catch (error) {
+  } catch (err) {
+    console.error("GET ALL ORDERS ERROR:", err);
+    res.status(500).json({ message: "Failed to fetch orders" });
+  }
+};
+/**
+ * GET MY ORDERS (USER)
+ */
+const getMyOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({ user: req.user.id })
+      .populate("items.product")
+      .sort({ createdAt: -1 });
+
+    res.json(orders);
+  } catch (err) {
+    console.error("GET MY ORDERS ERROR:", err);
     res.status(500).json({ message: "Failed to fetch orders" });
   }
 };
 
-// GET ALL ORDERS (ADMIN)
-exports.getAllOrders = async (req, res) => {
+/**
+ * UPDATE ORDER STATUS (ADMIN)
+ */
+const updateOrderStatus = async (req, res) => {
   try {
-    const orders = await Order.find()
-      .populate("user", "name email")
-      .populate("items.product");
+    const { status } = req.body;
 
-    res.json(orders);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch all orders" });
+    const order = await Order.findById(req.params.id).populate("user");
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    order.status = status;
+    await order.save();
+
+    // 🔔 SEND PUSH
+    if (order.user?.expoPushToken) {
+      await sendPushNotification(
+        order.user.expoPushToken,
+        "Order Update 📦",
+        `Your order is now ${status}`,
+        { orderId: order._id }
+      );
+    }
+
+    res.json({ success: true, order });
+  } catch (err) {
+    res.status(500).json({ message: "Status update failed" });
   }
 };
 
-// UPDATE ORDER STATUS (ADMIN)
-exports.updateOrderStatus = async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id);
-    if (!order)
-      return res.status(404).json({ message: "Order not found" });
-
-    order.status = req.body.status;
-    await order.save();
-
-    res.json(order);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to update order status" });
-  }
+module.exports = {
+  createOrder,
+  getAllOrders,
+  getMyOrders,
+  updateOrderStatus,
 };

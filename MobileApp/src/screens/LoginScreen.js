@@ -14,7 +14,8 @@ import {
 import { useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
-import { loginAdmin } from "../api/api";
+import API, { loginAdmin } from "../api/api";
+import { registerForPushNotifications } from "../utils/pushToken";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
@@ -22,47 +23,61 @@ export default function LoginScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Missing Fields", "Please enter email and password");
-      return;
+const handleLogin = async () => {
+  setLoading(true);
+
+  try {
+    console.log("➡️ Login started");
+
+    // 1️⃣ LOGIN API
+    const res = await loginAdmin({
+      email: email.trim().toLowerCase(),
+      password: password.trim(),
+    });
+
+    console.log("✅ Login API success", res?.data);
+
+    if (!res?.data?.token) {
+      throw new Error("Token missing from login response");
     }
 
-    try {
-      setLoading(true);
+    const jwtToken = res.data.token;
+    await AsyncStorage.setItem("token", jwtToken);
 
-     
-      await AsyncStorage.removeItem("token");
+    console.log("🔐 Token saved");
 
-      const payload = {
-        email: email.trim().toLowerCase(),
-        password: password.trim(),
-      };
+    // 2️⃣ PUSH TOKEN (BACKGROUND – NEVER BLOCK LOGIN)
+    registerForPushNotifications()
+      .then(async (expoToken) => {
+        if (!expoToken) return;
 
-      const res = await loginAdmin(payload);
+        console.log("📨 Sending push token to backend");
 
-      const token =
-        res.data?.token ||
-        res.data?.accessToken ||
-        res.data?.data?.token;
+        await API.post(
+          "/user/push-token",
+          { expoPushToken: expoToken },
+          {
+            headers: { Authorization: `Bearer ${jwtToken}` },
+          }
+        );
 
-      if (!token) {
-        throw new Error("Token not found");
-      }
+        console.log("✅ Push token saved in DB");
+      })
+      .catch(() => {
+        console.log("⚠️ Push failed (ignored)");
+      });
 
-      await AsyncStorage.setItem("token", token);
+    // 3️ NAVIGATE IMMEDIATELY
+    console.log("➡️ Navigating to Main");
+    navigation.replace("Main");
 
-      
-      navigation.replace("Main");
-    } catch (err) {
-      Alert.alert(
-        "Login Failed",
-        err.response?.data?.message || "Invalid credentials"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err) {
+    console.log("❌ LOGIN ERROR:", err?.response?.data || err.message);
+    Alert.alert("Login Failed", "Invalid credentials or server error");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <KeyboardAvoidingView
@@ -74,13 +89,9 @@ export default function LoginScreen({ navigation }) {
           contentContainerStyle={styles.container}
           keyboardShouldPersistTaps="handled"
         >
-         
           <Text style={styles.title}>Welcome Back 👋</Text>
-          <Text style={styles.subtitle}>
-            Login to continue shopping
-          </Text>
+          <Text style={styles.subtitle}>Login to continue shopping</Text>
 
-        
           <TextInput
             placeholder="Email"
             keyboardType="email-address"
@@ -90,7 +101,6 @@ export default function LoginScreen({ navigation }) {
             onChangeText={setEmail}
           />
 
-          
           <View style={styles.passwordContainer}>
             <TextInput
               placeholder="Password"
@@ -110,7 +120,6 @@ export default function LoginScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
-         
           <TouchableOpacity
             style={[styles.button, loading && { opacity: 0.6 }]}
             onPress={handleLogin}
@@ -150,6 +159,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 14,
     fontSize: 16,
+    color:"black",
   },
   passwordContainer: {
     flexDirection: "row",

@@ -6,57 +6,39 @@ import {
   removeCartApi,
 } from "../api/api";
 
-
-export const CartContext = createContext({
-  cart: [],
-  loadCart: async () => {},
-  addToCart: async () => {},
-  increase: async () => {},
-  decrease: async () => {},
-  removeItem: async () => {},
-  total: 0,
-});
+export const CartContext = createContext();
 
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
 
   const loadCart = async () => {
-    try {
-      const res = await getCartApi();
-      setCart(res.data || []);
-    } catch (err) {
-     
-      setCart([]);
-    }
+    const res = await getCartApi();
+    setCart(res.data?.items || []);
   };
 
   const addToCart = async (productId) => {
-    await addToCartApi({ product: productId });
-    await loadCart();
+    await addToCartApi({ productId, quantity: 1 });
+    loadCart();
   };
 
-  const increase = async (cartId, qty) => {
-    await updateCartApi(cartId, { quantity: qty + 1 });
-    await loadCart();
+  const increase = async (productId, qty) => {
+    await updateCartApi({ productId, quantity: qty + 1 });
+    loadCart();
   };
 
-  const decrease = async (cartId, qty) => {
-    if (qty <= 1) {
-      await removeCartApi(cartId);
-    } else {
-      await updateCartApi(cartId, { quantity: qty - 1 });
-    }
-    await loadCart();
+  const decrease = async (productId, qty) => {
+    if (qty <= 1) await removeCartApi(productId);
+    else await updateCartApi({ productId, quantity: qty - 1 });
+    loadCart();
   };
 
-  const removeItem = async (cartId) => {
-    await removeCartApi(cartId);
-    await loadCart();
+  const removeItem = async (productId) => {
+    await removeCartApi(productId);
+    loadCart();
   };
 
   const total = cart.reduce(
-    (sum, item) =>
-      sum + (item.product?.price || 0) * (item.quantity || 0),
+    (sum, i) => sum + i.quantity * i.product.price,
     0
   );
 

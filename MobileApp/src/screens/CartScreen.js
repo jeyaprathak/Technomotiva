@@ -61,7 +61,7 @@ export default function CartScreen({ navigation }) {
 
               <View style={styles.qtyRow}>
                 <TouchableOpacity
-                  onPress={() => decrease(item._id, item.quantity)}
+                  onPress={() => decrease(item.product._id, item.quantity)}
                 >
                   <Text style={styles.qtyBtn}>−</Text>
                 </TouchableOpacity>
@@ -69,13 +69,13 @@ export default function CartScreen({ navigation }) {
                 <Text style={styles.qty}>{item.quantity}</Text>
 
                 <TouchableOpacity
-                  onPress={() => increase(item._id, item.quantity)}
+                  onPress={() => increase(item.product._id, item.quantity)}
                 >
                   <Text style={styles.qtyBtn}>+</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  onPress={() => removeItem(item._id)}
+                  onPress={() => removeItem(item.product._id)}
                   style={styles.removeBtn}
                 >
                   <Text style={{ color: "#ff3d00" }}>Remove</Text>
