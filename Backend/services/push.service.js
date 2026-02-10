@@ -7,23 +7,16 @@ const sendPushNotification = async (expoPushToken, title, body, data = {}) => {
     title,
     body,
     data,
+    channelId: "order_updates", // 🔴 MUST MATCH
   };
 
-  try {
-    const res = await axios.post(
-      "https://exp.host/--/api/v2/push/send",
-      message,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log("📤 PUSH RESPONSE:", res.data);
-  } catch (err) {
-    console.error("❌ PUSH ERROR:", err.response?.data || err.message);
-  }
+  await axios.post(
+    "https://exp.host/--/api/v2/push/send",
+    message,
+    {
+      headers: { "Content-Type": "application/json" },
+    }
+  );
 };
 
 module.exports = { sendPushNotification };

@@ -30,7 +30,8 @@ export const deleteProduct = (id) =>
 
 // ORDERS (FIXED)
 export const getOrders = () => API.get("/orders"); // admin
-export const updateOrderStatus = (id, status) =>
-  API.put(`/orders/${id}/status`, { status });
+export const updateOrderStatus = (orderId, status) =>
+  API.put(`/orders/${orderId}/status`, { status });
+
 
 export default API;

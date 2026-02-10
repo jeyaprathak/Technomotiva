@@ -7,13 +7,15 @@ import * as Notifications from 'expo-notifications';
 import { registerForPushNotifications } from "./src/utils/pushToken";
 
 
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,  
+    shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
   }),
 });
+
 export default function App() {
 
   useEffect(() => {

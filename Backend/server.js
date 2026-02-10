@@ -24,7 +24,9 @@ app.use("/api/auth", require("./routes/authRoutes"));   // login / register
 app.use("/api/user", require("./routes/userRoutes"));// push-token
 app.use("/api/products", require("./routes/ProductRoutes"));
 app.use("/api/cart", require("./routes/cartRoutes"));
-app.use("/api/orders", require("./routes/orderRoutes"));
+app.use("/api/orders", require("./routes/OrderRoutes"));
+app.use("/api", require("./routes/AdminOrderRoutes"));
+
 
 // SERVER
 const PORT = process.env.PORT || 5000;
