@@ -15,13 +15,23 @@ export default function Orders() {
   };
 
   const changeStatus = async (id, status) => {
-    await updateOrderStatus(id, status);
+  try {
+    console.log("🔄 Updating:", id, status);
+
+    const res = await updateOrderStatus(id, status);
+
+    console.log("✅ Response:", res.data);
+
     setOrders((prev) =>
       prev.map((o) =>
         o._id === id ? { ...o, status } : o
       )
     );
-  };
+  } catch (err) {
+    console.error("❌ Status update failed:", err.response?.data || err.message);
+  }
+};
+
 
   return (
     <>

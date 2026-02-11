@@ -3,6 +3,7 @@ const Cart = require("../models/Cart");
 const User = require("../models/User");
 const { sendPushNotification } = require("../services/push.service");
 
+
 /**
  * CREATE ORDER
  */
@@ -80,29 +81,47 @@ const getMyOrders = async (req, res) => {
  */
 const updateOrderStatus = async (req, res) => {
   try {
+    console.log("📥 STATUS UPDATE API HIT");
+    console.log("📦 Order ID:", req.params.id);
+    console.log("📝 New Status:", req.body.status);
+
     const { status } = req.body;
 
     const order = await Order.findById(req.params.id).populate("user");
 
     if (!order) {
+      console.log("❌ Order not found");
       return res.status(404).json({ message: "Order not found" });
     }
 
     order.status = status;
     await order.save();
 
+    console.log("✅ Order updated in DB");
+
     // 🔔 SEND PUSH
     if (order.user?.expoPushToken) {
-      await sendPushNotification(
+      console.log("📱 Sending push to:", order.user.expoPushToken);
+
+      const pushResponse = await sendPushNotification(
         order.user.expoPushToken,
-        "Order Update 📦",
+        "📦 Order Update",
         `Your order is now ${status}`,
-        { orderId: order._id }
+        {
+          type: "ORDER_STATUS",
+          orderId: order._id.toString(),
+          status,
+        }
       );
+
+      console.log("📤 Push response:", pushResponse);
+    } else {
+      console.log("⚠ No expoPushToken found for user");
     }
 
     res.json({ success: true, order });
   } catch (err) {
+    console.error("❌ STATUS UPDATE ERROR:", err);
     res.status(500).json({ message: "Status update failed" });
   }
 };

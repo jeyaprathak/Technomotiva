@@ -8,7 +8,7 @@ export async function registerForPushNotifications() {
   await Notifications.requestPermissionsAsync();
 
   const token = await Notifications.getExpoPushTokenAsync({
-    projectId: "7ee1d949-f35e-44ce-93d2-86a42daf28c1",
+    projectId: "b8b1711c-5310-4195-81a0-dee24e34924a",
   });
 
   // 🔔 NEW CHANNEL (name changed)

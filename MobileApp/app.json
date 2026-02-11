@@ -1,30 +1,26 @@
 {
   "expo": {
     "name": "ShopJ",
-    "slug": "ecommerce",
+    "slug": "shopj",
     "version": "1.0.0",
     "orientation": "portrait",
-
     "icon": "./assets/ecommerce.png",
-
     "updates": {
       "enabled": false
     },
-
     "android": {
       "package": "com.jeyapratha_k.ecommerce",
       "googleServicesFile": "./google-services.json"
     },
-
     "extra": {
       "eas": {
-        "projectId": "7ee1d949-f35e-44ce-93d2-86a42daf28c1"
+        "projectId": "b8b1711c-5310-4195-81a0-dee24e34924a"
       }
     },
-
     "plugins": [
       "expo-font",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-asset"
     ]
   }
 }
