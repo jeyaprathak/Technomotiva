@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { createProduct } from "../../API/service";
 import Navbar from "../../components/Navbar";
+import { useNavigate } from "react-router-dom";
 
 export default function AddProduct() {
   const [product, setProduct] = useState({});
+  const navigate = useNavigate();
+
 
   const submit = async () => {
     await createProduct(product);
     alert("Product added");
+    navigate("/products");
     setProduct({});
   };
 
