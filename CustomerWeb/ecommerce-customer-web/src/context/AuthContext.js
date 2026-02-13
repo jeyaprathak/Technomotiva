@@ -1,15 +1,25 @@
 import { createContext, useState, useEffect } from "react";
-import { loginUser, getProfile } from "../api/api";
+import { loginUser } from "../api/api";
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (localStorage.getItem("token")) {
-      getProfile().then(res => setUser(res.data)).catch(() => logout());
+    const token = localStorage.getItem("token");
+    const savedUser = localStorage.getItem("user");
+
+    if (token && savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch {
+        localStorage.removeItem("user");
+      }
     }
+
+    setLoading(false);
   }, []);
 
   const login = async (data) => {
@@ -18,14 +28,13 @@ export function AuthProvider({ children }) {
     setUser(res.data.user);
   };
 
- const logout = () => {
-  localStorage.removeItem("token");
-  window.location.href = "/";
-};
-
+  const logout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

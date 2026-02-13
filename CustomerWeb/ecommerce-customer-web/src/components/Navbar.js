@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { CartContext } from "../context/CartContext";
 import { AuthContext } from "../context/AuthContext";
@@ -8,6 +8,7 @@ export default function Navbar({ onSearch }) {
   const { logout } = useContext(AuthContext);
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadCart();
@@ -23,6 +24,12 @@ export default function Navbar({ onSearch }) {
       onSearch(query);
     }
   };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -56,7 +63,7 @@ export default function Navbar({ onSearch }) {
             </Link>
 
             <button
-              onClick={logout}
+              onClick={handleLogout}
               className="bg-red-50 text-red-600 px-4 py-2 rounded-lg"
             >
               Logout
